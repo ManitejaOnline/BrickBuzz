@@ -31,5 +31,24 @@ Welcome to your cricket analytics project!
 - **Visualizations** → interactive charts and insights  
 
 ---
-Powered by: **SQLite + SQLAlchemy**, **Streamlit**, **Pandas + Plotly**
+Powered by: **SQLite + SQLAlchemy**, **Streamlit**, **Pandas + Plotly**, **RapidAPI Cricbuzz**
 """)
+
+st.subheader("🔴 Live data")
+st.caption("Pulls live / recent / upcoming matches from Cricbuzz via RapidAPI into SQLite.")
+if st.button("Refresh Live Data", type="primary"):
+    with st.spinner("Fetching live matches..."):
+        try:
+            from utils.sync_live import sync_live_data
+
+            result = sync_live_data(force=True)
+            st.success(
+                f"Synced {result['synced_matches']} matches "
+                f"(live {result['live_count']}, recent {result['recent_count']}, "
+                f"upcoming {result['upcoming_count']}; detailed {result['detailed_matches']})."
+            )
+            if result.get("errors"):
+                st.warning("Some scorecards could not be enriched (quota/rate limit).")
+        except Exception as e:
+            st.error(f"Live sync failed: {e}")
+
